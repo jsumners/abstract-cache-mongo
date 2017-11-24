@@ -1,0 +1,42 @@
+{
+  "name": "abstract-cache-mongo",
+  "version": "1.0.0",
+  "description": "An abstract-cache compliant client with a MongoDB backing",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test-ci",
+    "test-ci": "tap --cov 'test/**/*.test.js'",
+    "pretest": "docker-compose up -d mongodb",
+    "posttest": "docker-compose down",
+    "lint": "standard | snazzy",
+    "lint-ci": "standard"
+  },
+  "precommit": [
+    "lint",
+    "test"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jsumners/abstract-cache-mongo.git"
+  },
+  "keywords": [
+    "abstract-cache",
+    "cache",
+    "mongodb"
+  ],
+  "author": "James Sumners <james.sumners@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jsumners/abstract-cache-mongo/issues"
+  },
+  "homepage": "https://github.com/jsumners/abstract-cache-mongo#readme",
+  "devDependencies": {
+    "pre-commit": "^1.2.2",
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.3",
+    "tap": "^10.7.3"
+  },
+  "dependencies": {
+    "mongodb": "^2.2.33"
+  }
+}
