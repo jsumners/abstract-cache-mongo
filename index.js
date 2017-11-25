@@ -2,26 +2,36 @@
 
 const mongodb = require('mongodb')
 
+function mapKey (inputKey, defaultSegment) {
+  if (typeof inputKey === 'string') return {key: inputKey, segment: defaultSegment}
+  return {
+    key: inputKey.id,
+    segment: inputKey.segment
+  }
+}
+
 const proto = {
   delete: function (key) {
+    const keyObj = mapKey(key, this._segment)
     return this.mongo.db
-      .collection(this._segment)
-      .deleteOne({key})
+      .collection(keyObj.segment)
+      .deleteOne({key: keyObj.key})
       .then((result) => {
         return result.deletedCount === 1
       })
   },
 
   get: function (key) {
+    const keyObj = mapKey(key, this._segment)
     return this.mongo.db
-      .collection(this._segment)
-      .findOne({key})
+      .collection(keyObj.segment)
+      .findOne({key: keyObj.key})
       .then((doc) => {
         if (!doc) return null
         const now = Date.now()
         const expires = doc.payload.ttl + doc.payload.stored
         const ttl = expires - now
-        if (ttl < 1) {
+        if (expires < now) {
           return this.delete(key)
             .then((result) => {
               if (result === true) return null
@@ -32,8 +42,8 @@ const proto = {
             })
         }
         return {
-          item: doc.item,
-          stored: doc.stored,
+          item: doc.payload.item,
+          stored: doc.payload.stored,
           ttl
         }
       })
@@ -51,8 +61,9 @@ const proto = {
   },
 
   set: function (key, value, ttl) {
+    const keyObj = mapKey(key, this._segment)
     const doc = {
-      key: key,
+      key: keyObj.key,
       payload: {
         item: value,
         stored: Date.now(),
@@ -60,7 +71,7 @@ const proto = {
       }
     }
     return this.mongo.db
-      .collection(this._segment)
+      .collection(keyObj.segment)
       .insertOne(doc)
   },
 

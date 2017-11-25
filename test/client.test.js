@@ -100,3 +100,22 @@ test('has returns true for found item', (t) => {
     .then(() => client.stop())
     .catch(t.threw)
 })
+
+test('supports object keys', (t) => {
+  t.plan(4)
+  const key = {id: 'foo', segment: 'foobar'}
+  const client = factory()
+  client.start()
+    .then(() => client.set(key, 'foo', 10000))
+    .then(() => client.has(key))
+    .then((result) => t.is(result, true))
+    .then(() => client.get(key))
+    .then((cached) => {
+      t.type(cached, Object)
+      t.ok(cached.item)
+      t.is(cached.item, 'foo')
+    })
+    .then(() => client.delete(key))
+    .then(() => client.stop())
+    .catch(t.threw)
+})
