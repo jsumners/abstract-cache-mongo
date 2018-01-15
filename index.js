@@ -1,5 +1,6 @@
 'use strict'
 
+const conflate = require('conflate')
 const mongodb = require('mongodb')
 
 function mapKey (inputKey, defaultSegment) {
@@ -81,8 +82,9 @@ const proto = {
         this.mongo.options.url,
         this.mongo.options.connectOptions
       )
-      .then((db) => {
-        this.mongo.db = db
+      .then((client) => {
+        this.mongo.client = client
+        this.mongo.db = client.db(this.mongo.dbName)
       })
       .catch((err) => {
         throw err
@@ -90,17 +92,21 @@ const proto = {
   },
 
   stop: function () {
-    return this.mongo.db.close()
+    return this.mongo.client.close()
+  }
+}
+
+const defaultOptions = {
+  client: undefined,
+  dbName: 'abstractCacheMongo',
+  mongodb: {
+    url: 'mongodb://localhost:27017/abstractCacheMongo',
+    connectOptions: {}
   }
 }
 
 module.exports = function abstractCacheMongoFactory (options) {
-  const opts = options || {
-    mongodb: {
-      url: 'mongodb://localhost:27017/abstractCacheMongo',
-      connectOptions: {}
-    }
-  }
+  const opts = conflate({}, defaultOptions, options)
   const instance = Object.create(proto)
 
   Object.defineProperties(instance, {
@@ -111,7 +117,9 @@ module.exports = function abstractCacheMongoFactory (options) {
     mongo: {
       enumerable: false,
       value: {
-        db: opts.client || {},
+        client: opts.client || {},
+        db: opts.client && opts.client.db(opts.dbName),
+        dbName: opts.dbName,
         options: opts.mongodb,
         MongoClient: mongodb.MongoClient,
         ObjectId: mongodb.ObjectId

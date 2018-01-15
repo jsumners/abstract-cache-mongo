@@ -5,25 +5,28 @@ const test = tap.test
 const mongodb = require('mongodb')
 const factory = require('../')
 
-tap.tearDown(() => {
+tap.tearDown((done) => {
   mongodb.MongoClient.connect('mongodb://localhost:27017/testing')
-    .then((db) => {
-      return db.dropDatabase()
-        .then(() => db.close())
+    .then((client) => {
+      return client.db('testing').dropDatabase()
+        .then(() => client.close())
+        .catch((err) => {
+          tap.threw(err)
+        })
     })
     .catch((err) => {
-      throw err
+      tap.threw(err)
     })
 })
 
 test('accepts an existing client', (t) => {
   t.plan(1)
   mongodb.MongoClient.connect('mongodb://localhost:27017/testing')
-    .then((db) => {
-      const client = factory({client: db})
+    .then((mongoClient) => {
+      const client = factory({client: mongoClient, dbName: 'testing'})
       client.set('foo', 'foo', 1000)
         .then(() => t.pass())
-        .then(() => db.collection(client._segment))
+        .then(() => client.mongo.db.collection(client._segment))
         .then((col) => col.drop())
         .then(() => client.stop())
         .catch(t.threw)
@@ -34,6 +37,7 @@ test('accepts an existing client', (t) => {
 test('creates a new connection', (t) => {
   t.plan(2)
   const client = factory({
+    dbName: 'teting',
     mongodb: {
       url: 'mongodb://localhost:27017/testing'
     }
@@ -50,7 +54,7 @@ test('creates a new connection', (t) => {
 
 test('returns null for missing doc', (t) => {
   t.plan(1)
-  const client = factory()
+  const client = factory({dbName: 'testing'})
   client.start()
     .then(() => client.get('foo'))
     .then((result) => t.is(result, null))
@@ -60,7 +64,7 @@ test('returns null for missing doc', (t) => {
 
 test('purges expired items', (t) => {
   t.plan(1)
-  const client = factory()
+  const client = factory({dbName: 'testing'})
   client.start()
     .then(() => client.set('foo', 'foo', 100))
     .then(() => {
@@ -80,7 +84,7 @@ test('purges expired items', (t) => {
 
 test('has returns false for missing item', (t) => {
   t.plan(1)
-  const client = factory()
+  const client = factory({dbName: 'testing'})
   client.start()
     .then(() => client.has('foo'))
     .then((result) => t.is(result, false))
@@ -90,7 +94,7 @@ test('has returns false for missing item', (t) => {
 
 test('has returns true for found item', (t) => {
   t.plan(1)
-  const client = factory()
+  const client = factory({dbName: 'testing'})
   client.start()
     .then(() => client.set('foo', 'foo', 1000))
     .then(() => client.has('foo'))
@@ -104,7 +108,7 @@ test('has returns true for found item', (t) => {
 test('supports object keys', (t) => {
   t.plan(4)
   const key = {id: 'foo', segment: 'foobar'}
-  const client = factory()
+  const client = factory({dbName: 'testing'})
   client.start()
     .then(() => client.set(key, 'foo', 10000))
     .then(() => client.has(key))

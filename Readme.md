@@ -25,6 +25,7 @@ client.start()
 The client factory accepts the an object with the following properties:
 
 + `client`: An already connected instance of `mongodb`.
++ `dbName`: The name of the database to use. Default: 'abstractCacheMongo'.
 + `segment`: A string denoting the collection to use for storage. The default
 is `abstractCacheMongo`.
 + `mongodb`:
@@ -38,6 +39,8 @@ Notes:
 
 1. `client` takes precedence to `mongodb`.
 1. The user is responsible for opening and closing the connection.
+1. The database name must be specified independently due to changes in the
+`mongodb` module as of v3.0.0.
 
 ## Tests
 
