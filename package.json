@@ -1,6 +1,6 @@
 {
   "name": "abstract-cache-mongo",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "An abstract-cache compliant client with a MongoDB backing",
   "main": "index.js",
   "scripts": {
