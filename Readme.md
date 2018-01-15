@@ -27,7 +27,7 @@ The client factory accepts the an object with the following properties:
 + `client`: An already connected instance of `mongodb`.
 + `segment`: A string denoting the collection to use for storage. The default
 is `abstractCacheMongo`.
-+ `mongo`:
++ `mongodb`:
   * `url`: A regular MongoDB connection URL. Should include username and
   password if authentication is needed. The default is:
   `mongodb://localhost:27017/abstractCacheMongo'.
