@@ -37,7 +37,7 @@ test('accepts an existing client', (t) => {
 test('creates a new connection', (t) => {
   t.plan(2)
   const client = factory({
-    dbName: 'teting',
+    dbName: 'testing',
     mongodb: {
       url: 'mongodb://localhost:27017/testing'
     }
