@@ -34,7 +34,7 @@
     "abstract-cache": "^1.0.1",
     "pre-commit": "^1.2.2",
     "snazzy": "^7.0.0",
-    "standard": "^10.0.3",
+    "standard": "^11.0.0",
     "tap": "^11.0.1"
   },
   "dependencies": {
