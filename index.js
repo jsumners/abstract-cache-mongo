@@ -73,7 +73,7 @@ const proto = {
     }
     return this.mongo.db
       .collection(keyObj.segment)
-      .insertOne(doc)
+      .replaceOne({ key: keyObj.key }, doc, { upsert: true })
   },
 
   start: function () {
